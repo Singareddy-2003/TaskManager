@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Task Manager</title>
+  <!-- favicon -->
+   <link rel="shortcut icon" href="/assets/list.png" type="image/x-icon">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- externalcss -->
+   <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-dark text-light">
+
+
+
+<nav class="navbar navbar-expand-lg " style="background-color:lightcyan;">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#" class="fw-bold fs-4 " style="font-weight: bold;">Task Manager Pro</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+       <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+      <li class="nav-item"><a class="nav-link fs-5" href="#" id="AllTasks">All</a></li>
+      <li class="nav-item"><a class="nav-link fs-5" href="#" id="completedTasks">Completed</a></li>
+      <li class="nav-item"><a class="nav-link fs-5" href="#" id="pendingTasks">Pending</a></li>
+    </ul>
+    <button class="btn btn-danger" id="logoutBtn">Logout</button>
+    
+      
+    </div>
+  </div>
+</nav>
+
+<!-- Modal Trigger -->
+<div class="container my-4 text-center">
+  <!-- <button class="btn btn-success fs-3 fw-bold" data-bs-toggle="modal" data-bs-target="#taskModal">+</button> -->
+  <!-- Add Task Trigger -->
+<button id="addTaskBtn" class="btn btn-success fs-3 fw-bold" data-bs-toggle="modal" data-bs-target="#taskModal">+</button>
+
+</div>
+
+<!-- Modal -->
+
+
+<div class="container mb-3 text-center">
+  <label for="sortBy" class="form-label fw-bold">Sort by Due Date</label>
+  <select id="sortBy" class="form-select w-auto d-inline-block" onchange="handleSortChange()">
+    <option value="asc">Oldest First</option>
+    <option value="desc">Newest First</option>
+  </select>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="taskModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content text-dark">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Task</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+      <label for="modal-input" class="form-label">Title</label>
+      <input type="text" class="form-control" id="modal-input" placeholder="Enter title">
+
+        <label class="mt-2">Description</label>
+        <textarea class="form-control" id="modal-desc" placeholder="Enter description"></textarea>
+
+        <label class="mt-2">Priority</label>
+        <select id="priority" class="form-control">
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+
+        <label class="mt-2">Status</label>
+        <select id="status" class="form-control">
+          <option value="To Do">To Do</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Completed">Done</option>
+        </select>
+
+        <label class="mt-2">Due Date</label>
+        <input type="date" class="form-control" id="due-date">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button class="btn btn-primary" onclick="addTask()">Add Task</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Task Cards -->
+<div class="container">
+  <div class="row cards-data mt-3"></div>
+</div>
+<!-- <select id="sortBy" class="form-select w-auto d-inline-block" onchange="handleSortChange()"> -->
+
+<!-- Script -->
+<!-- <script>
+  document.querySelector("#logoutBtn").addEventListener("click", function () {
+    window.location.href = "login.html";
+  });
+
+  function addTask() {
+    let modalinput = document.querySelector("#modal-input").value.trim();
+    let modalstatus = document.querySelector("#status").value;
+
+    if (!modalinput || !modalstatus) {
+      alert("Please enter all fields.");
+      return;
+    }
+
+    let task = {
+      title: modalinput,
+      status: modalstatus,
+      iscompleted: modalstatus === "completed"
+    };
+
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    tasks.push(task);
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+
+    renderTasks("all");
+
+    // Clear form
+    document.querySelector("#modal-input").value = "";
+    document.querySelector("#status").value = "pending";
+
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.querySelector("#taskModal"));
+    modal.hide();
+  }
+
+  function displayTask(task) {
+    let div = document.createElement("div");
+    div.classList.add("card", "col-12", "col-md-4", "m-2", "bg-dark", "text-light", "p-3", "shadow");
+
+    let title = document.createElement("h4");
+    title.classList.add("fw-bold");
+
+    let status = document.createElement("p");
+    status.classList.add("fs-5");
+
+    if (task.iscompleted) {
+      title.innerHTML = `<del>Task: ${task.title}</del>`;
+      status.innerHTML = `<del>Status: ${task.status}</del>`;
+    } else {
+      title.innerText = `Task: ${task.title}`;
+      status.innerText = `Status: ${task.status}`;
+    }
+
+    // Completed Button
+    let completeBtn = document.createElement("button");
+    completeBtn.innerText = "Completed";
+    completeBtn.classList.add("btn", "btn-outline-light", "me-2", "mt-2");
+    completeBtn.onclick = () => {
+      task.iscompleted = true;
+      updateTask(task);
+    };
+
+    // Delete Button
+    let delBtn = document.createElement("button");
+    delBtn.innerText = "Delete";
+    delBtn.classList.add("btn", "btn-outline-danger", "me-2", "mt-2");
+    delBtn.onclick = () => {
+      deleteTask(task);
+    };
+
+    // Edit Button
+    let editBtn = document.createElement("button");
+    editBtn.innerText = "Edit";
+    editBtn.classList.add("btn", "btn-outline-warning", "mt-2");
+    editBtn.onclick = () => {
+      let newTitle = prompt("Edit task title", task.title);
+      if (newTitle && newTitle.trim() !== "") {
+        task.title = newTitle.trim();
+        updateTask(task);
+      }
+    };
+
+    div.appendChild(title);
+    div.appendChild(status);
+    div.appendChild(completeBtn);
+    div.appendChild(delBtn);
+    div.appendChild(editBtn);
+
+    document.querySelector(".cards-data").appendChild(div);
+  }
+
+  function updateTask(updatedTask) {
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    let index = tasks.findIndex(t => t.title === updatedTask.title || t.timestamp === updatedTask.timestamp);
+    if (index !== -1) {
+      tasks[index] = updatedTask;
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+    renderTasks("all");
+  }
+
+  function deleteTask(taskToDelete) {
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    tasks = tasks.filter(t => !(t.title === taskToDelete.title && t.status === taskToDelete.status));
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+    renderTasks("all");
+  }
+
+  function renderTasks(filter = "all") {
+    document.querySelector(".cards-data").innerHTML = "";
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+    if (filter === "completed") {
+      tasks = tasks.filter(t => t.iscompleted);
+    } else if (filter === "pending") {
+      tasks = tasks.filter(t => !t.iscompleted);
+    }
+
+    tasks.forEach(task => displayTask(task));
+  }
+
+  document.getElementById("AllTasks").onclick = () => renderTasks("all");
+  document.getElementById("completedTasks").onclick = () => renderTasks("completed");
+  document.getElementById("pendingTasks").onclick = () => renderTasks("pending");
+
+  // Load tasks on page load
+  window.onload = () => renderTasks("all");
+</script> -->
+
+<script src="script.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
