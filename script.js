@@ -63,7 +63,7 @@ function displayTask(task) {
   if (due < today && !task.iscompleted) return;
 
   const card = document.createElement("div");
-  card.className = "card col-12 col-sm-12 col-md-3  col-lg-3 bg-light text-dark text-light m-2 p-3 shadow mx-5";
+  card.className = "card col-12 col-sm-12 col-md-3  col-lg-3 bg-light text-dark text-light m-2 p-3 shadow ";
 
   const checkbox = document.createElement("input");
   checkbox.type = "checkbox";
@@ -185,6 +185,24 @@ document.getElementById("AllTasks").onclick = () => renderTasks("all");
 document.getElementById("completedTasks").onclick = () => renderTasks("completed");
 document.getElementById("pendingTasks").onclick = () => renderTasks("pending");
 
+
+
+document.getElementById("filterPriority").onchange = () => {
+  const selectedPriority = document.getElementById("filterPriority").value;
+  filterTasksByPriority(selectedPriority);
+};
+
+function filterTasksByPriority(priority) {
+  document.querySelector(".cards-data").innerHTML = "";
+  let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+  if (priority !== "all") {
+    tasks = tasks.filter(t => t.priority.toLowerCase() === priority.toLowerCase());
+  }
+
+  tasks.forEach(displayTask);
+}
+
 // Initial Render
 window.onload = () => renderTasks("all");
 
@@ -192,5 +210,7 @@ function handleSortChange() {
   const sortOrder = document.getElementById("sortBy")?.value || "asc";
   renderTasks("all", sortOrder);
 }
+
+
 
 window.handleSortChange = handleSortChange;
